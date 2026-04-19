@@ -1050,6 +1050,22 @@ export default function App() {
   const [aiInput, setAiInput] = useState("");
   const [aiMessages, setAiMessages] = useState([{ role: "assistant", text: "Olá! Sou sua assistente pedagógica. Como posso ajudar hoje?" }]);
   const [aiLoading, setAiLoading] = useState(false);
+  const [teacherMode, setTeacherMode] = useState(false);
+  const [showTeacherLogin, setShowTeacherLogin] = useState(false);
+  const [teacherPassword, setTeacherPassword] = useState("");
+  const [teacherError, setTeacherError] = useState("");
+
+  const TEACHER_PASSWORD = "giovana123";
+  const handleTeacherLogin = () => {
+    if (teacherPassword === TEACHER_PASSWORD) {
+      setTeacherMode(true);
+      setShowTeacherLogin(false);
+      setTeacherPassword("");
+      setTeacherError("");
+    } else {
+      setTeacherError("Senha incorreta. Tente novamente!");
+    }
+  };
 
   const avgProgress = (student) => {
     const vals = Object.values(student.progress || {});
@@ -1146,6 +1162,47 @@ export default function App() {
     return <StudentArea students={students} grades={grades} quizzes={quizzes} murals={murals} onBack={() => setStudentMode(false)} />;
   }
 
+  if (!teacherMode) {
+    return (
+      <div style={{ fontFamily: "'Georgia', serif", background: "linear-gradient(135deg, #2d2416 0%, #5c3d1e 100%)", minHeight: "100vh", maxWidth: 480, margin: "0 auto", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24 }}>
+        <div style={{ width: 120, height: 120, borderRadius: "50%", background: "linear-gradient(135deg, #c9a96e, #c9701a)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 60, marginBottom: 20, border: "3px solid #c9a96e" }}>📚</div>
+        <div style={{ color: "#f5e6c8", fontWeight: 700, fontSize: 24, marginBottom: 4, textAlign: "center" }}>Território do Aprender</div>
+        <div style={{ color: "#c9a96e", fontSize: 14, marginBottom: 40, textAlign: "center" }}>Reforço Escolar · Prof.ª Giovana Maciel</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16, width: "100%", maxWidth: 320 }}>
+          <button onClick={() => setShowTeacherLogin(true)} style={{ background: "#c9701a", color: "#fff", border: "none", borderRadius: 16, padding: "18px 24px", fontSize: 17, fontWeight: 700, cursor: "pointer", fontFamily: "'Georgia', serif", display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
+            👩‍🏫 Sou Professora
+          </button>
+          <button onClick={() => setStudentMode(true)} style={{ background: "#6366f1", color: "#fff", border: "none", borderRadius: 16, padding: "18px 24px", fontSize: 17, fontWeight: 700, cursor: "pointer", fontFamily: "'Georgia', serif", display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
+            🎒 Sou Aluno
+          </button>
+        </div>
+        {showTeacherLogin && (
+          <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200, padding: 24 }}>
+            <div style={{ background: "#fff", borderRadius: 20, padding: 28, width: "100%", maxWidth: 340 }}>
+              <div style={{ fontWeight: 700, fontSize: 18, color: "#2d2416", marginBottom: 16, textAlign: "center" }}>🔐 Acesso da Professora</div>
+              <input
+                type="password"
+                value={teacherPassword}
+                onChange={e => setTeacherPassword(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleTeacherLogin()}
+                placeholder="Digite sua senha"
+                style={{ width: "100%", padding: "12px 16px", borderRadius: 12, border: "2px solid #f0e6d2", fontSize: 16, outline: "none", boxSizing: "border-box", fontFamily: "'Georgia', serif", marginBottom: 10, textAlign: "center" }}
+              />
+              {teacherError && <div style={{ color: "#ef4444", fontSize: 13, marginBottom: 10, textAlign: "center" }}>{teacherError}</div>}
+              <button onClick={handleTeacherLogin} style={{ width: "100%", background: "#c9701a", color: "#fff", border: "none", borderRadius: 12, padding: 13, fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: "'Georgia', serif", marginBottom: 10 }}>
+                Entrar
+              </button>
+              <button onClick={() => { setShowTeacherLogin(false); setTeacherPassword(""); setTeacherError(""); }} style={{ width: "100%", background: "none", border: "none", color: "#7a6545", fontSize: 13, cursor: "pointer", fontFamily: "'Georgia', serif" }}>
+                Cancelar
+              </button>
+              <div style={{ fontSize: 11, color: "#c9a96e", textAlign: "center", marginTop: 10 }}>Senha padrão: <strong>giovana123</strong></div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div style={styles.app}>
       {/* Header */}
@@ -1157,12 +1214,12 @@ export default function App() {
             <div style={{ color: "#c9a96e", fontSize: 11 }}>Reforço Escolar · Prof.ª Giovana Maciel</div>
           </div>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
-          <button onClick={() => setStudentMode(true)} style={{ background: "#6366f1", color: "#fff", border: "none", borderRadius: 20, padding: "7px 12px", fontSize: 11, cursor: "pointer", fontFamily: "'Georgia', serif", fontWeight: 700 }}>
-            🎒 Aluno
-          </button>
-          <button onClick={() => setShowAI(true)} style={{ background: "#c9a96e", color: "#2d2416", border: "none", borderRadius: 20, padding: "7px 12px", fontSize: 11, cursor: "pointer", fontFamily: "'Georgia', serif", fontWeight: 700 }}>
+        <div style={{ display: "flex", gap: 6 }}>
+          <button onClick={() => setShowAI(true)} style={{ background: "#c9a96e", color: "#2d2416", border: "none", borderRadius: 20, padding: "7px 10px", fontSize: 11, cursor: "pointer", fontFamily: "'Georgia', serif", fontWeight: 700 }}>
             ✨ IA
+          </button>
+          <button onClick={() => setTeacherMode(false)} style={{ background: "rgba(255,255,255,0.2)", color: "#fff", border: "none", borderRadius: 20, padding: "7px 10px", fontSize: 11, cursor: "pointer", fontFamily: "'Georgia', serif" }}>
+            Sair
           </button>
         </div>
       </div>
