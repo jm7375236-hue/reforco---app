@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 
 const SUBJECTS = ["Inglês", "Espanhol", "Matemática", "Português", "Gramática", "Redação", "Ciências", "História", "Geografia", "Arte"];
@@ -1069,6 +1070,8 @@ export default function App() {
 
   const quizScore = () => quizAnswers.filter((a, i) => a === activeQuiz.questions[i].answer).length;
 
+  const GEMINI_API_KEY = "AIzaSyBQ2bUlfEt5ZVABfBxGZbdq-8Gd4GS_u7l"; // Cole sua chave aqui
+  
   const sendAI = async () => {
     if (!aiInput.trim()) return;
     const userMsg = aiInput.trim();
@@ -1076,28 +1079,30 @@ export default function App() {
     setAiMessages(msgs => [...msgs, { role: "user", text: userMsg }]);
     setAiLoading(true);
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "anthropic-dangerous-direct-browser-access": "true"
-        },
-        body: JSON.stringify({
-          model: "claude-haiku-4-5-20251001",
-          max_tokens: 1000,
-          system: "Você é uma assistente pedagógica especializada em reforço escolar para alunos do ensino fundamental. Responda sempre em português, de forma clara, didática e encorajadora. Ajude com dúvidas de Matemática, Português, Ciências, História, Geografia, Inglês, Espanhol e Arte. Seja sempre animada e use emojis ocasionalmente.",
-          messages: [{ role: "user", content: userMsg }],
-        }),
-      });
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{
+                text: `Você é uma assistente pedagógica especializada em reforço escolar para alunos do ensino fundamental. Responda sempre em português, de forma clara, didática e encorajadora. Ajude com dúvidas de Matemática, Português, Ciências, História, Geografia, Inglês, Espanhol e Arte. Seja animada e use emojis ocasionalmente.\n\nPergunta do aluno ou professora: ${userMsg}`
+              }]
+            }],
+            generationConfig: { maxOutputTokens: 1000, temperature: 0.7 }
+          }),
+        }
+      );
       const data = await res.json();
       if (data.error) {
-        setAiMessages(msgs => [...msgs, { role: "assistant", text: "⚙️ A IA precisa de uma chave de API para funcionar. Configure a variável ANTHROPIC_API_KEY no Vercel em Settings → Environment Variables." }]);
+        setAiMessages(msgs => [...msgs, { role: "assistant", text: "⚙️ Chave de API inválida. Verifique a chave do Google Gemini no código." }]);
       } else {
-        const reply = data.content?.map(c => c.text || "").join("") || "Desculpe, não consegui responder.";
+        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Desculpe, não consegui responder.";
         setAiMessages(msgs => [...msgs, { role: "assistant", text: reply }]);
       }
     } catch {
-      setAiMessages(msgs => [...msgs, { role: "assistant", text: "⚙️ A IA precisa de configuração adicional. Entre em contato para configurar!" }]);
+      setAiMessages(msgs => [...msgs, { role: "assistant", text: "Erro ao conectar. Verifique sua internet e tente novamente! 😊" }]);
     }
     setAiLoading(false);
   };
