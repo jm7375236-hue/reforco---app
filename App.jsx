@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 
 const SUBJECTS = ["Inglês", "Espanhol", "Matemática", "Português", "Gramática", "Redação", "Ciências", "História", "Geografia", "Arte"];
@@ -1010,14 +1009,36 @@ function MuralTab({ murals, setMurals }) {
 }
 
 export default function App() {
+  // localStorage helpers
+  const load = (key, fallback) => { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch { return fallback; } };
+
   const [tab, setTab] = useState("dashboard");
-  const [students, setStudents] = useState([]);
-  const [studentNotes, setStudentNotes] = useState({});
-  const [grades, setGrades] = useState({});
-  const [murals, setMurals] = useState([]);
-  const [studentMode, setStudentMode] = useState(false); // { studentId: [{id, date, text, type}] }
-  const [devIndex, setDevIndex] = useState({}); // { studentId: { subject: value } }
-  const [quizzes, setQuizzes] = useState(initialQuizzes);
+  const [studentMode, setStudentMode] = useState(false);
+
+  const [studentsData, setStudentsData] = useState(() => load("ta_students", []));
+  const students = studentsData;
+  const setStudents = (v) => { const val = typeof v === "function" ? v(studentsData) : v; setStudentsData(val); try { localStorage.setItem("ta_students", JSON.stringify(val)); } catch {} };
+
+  const [notesData, setNotesData] = useState(() => load("ta_notes", {}));
+  const studentNotes = notesData;
+  const setStudentNotes = (v) => { const val = typeof v === "function" ? v(notesData) : v; setNotesData(val); try { localStorage.setItem("ta_notes", JSON.stringify(val)); } catch {} };
+
+  const [gradesData, setGradesData] = useState(() => load("ta_grades", {}));
+  const grades = gradesData;
+  const setGrades = (v) => { const val = typeof v === "function" ? v(gradesData) : v; setGradesData(val); try { localStorage.setItem("ta_grades", JSON.stringify(val)); } catch {} };
+
+  const [devIndexData, setDevIndexData] = useState(() => load("ta_devindex", {}));
+  const devIndex = devIndexData;
+  const setDevIndex = (v) => { const val = typeof v === "function" ? v(devIndexData) : v; setDevIndexData(val); try { localStorage.setItem("ta_devindex", JSON.stringify(val)); } catch {} };
+
+  const [quizzesData, setQuizzesData] = useState(() => load("ta_quizzes", initialQuizzes));
+  const quizzes = quizzesData;
+  const setQuizzes = (v) => { const val = typeof v === "function" ? v(quizzesData) : v; setQuizzesData(val); try { localStorage.setItem("ta_quizzes", JSON.stringify(val)); } catch {} };
+
+  const [muralsData, setMuralsData] = useState(() => load("ta_murals", []));
+  const murals = muralsData;
+  const setMurals = (v) => { const val = typeof v === "function" ? v(muralsData) : v; setMuralsData(val); try { localStorage.setItem("ta_murals", JSON.stringify(val)); } catch {} };
+
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [showAddStudent, setShowAddStudent] = useState(false);
   const [activeQuiz, setActiveQuiz] = useState(null);
@@ -1070,7 +1091,7 @@ export default function App() {
 
   const quizScore = () => quizAnswers.filter((a, i) => a === activeQuiz.questions[i].answer).length;
 
-  const GEMINI_API_KEY = "AIzaSyBQ2bUlfEt5ZVABfBxGZbdq-8Gd4GS_u7l"; // Cole sua chave aqui
+  const GROQ_API_KEY = "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";
   
   const sendAI = async () => {
     if (!aiInput.trim()) return;
@@ -1079,26 +1100,27 @@ export default function App() {
     setAiMessages(msgs => [...msgs, { role: "user", text: userMsg }]);
     setAiLoading(true);
     try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: `Você é uma assistente pedagógica especializada em reforço escolar para alunos do ensino fundamental. Responda sempre em português, de forma clara, didática e encorajadora. Ajude com dúvidas de Matemática, Português, Ciências, História, Geografia, Inglês, Espanhol e Arte. Seja animada e use emojis ocasionalmente.\n\nPergunta do aluno ou professora: ${userMsg}`
-              }]
-            }],
-            generationConfig: { maxOutputTokens: 1000, temperature: 0.7 }
-          }),
-        }
-      );
+      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${GROQ_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: "llama3-8b-8192",
+          messages: [
+            { role: "system", content: "Você é uma assistente pedagógica especializada em reforço escolar para alunos do ensino fundamental. Responda sempre em português, de forma clara, didática e encorajadora. Ajude com dúvidas de Matemática, Português, Ciências, História, Geografia, Inglês, Espanhol e Arte. Seja animada e use emojis ocasionalmente." },
+            { role: "user", content: userMsg }
+          ],
+          max_tokens: 1000,
+          temperature: 0.7
+        }),
+      });
       const data = await res.json();
       if (data.error) {
-        setAiMessages(msgs => [...msgs, { role: "assistant", text: "⚙️ Chave de API inválida. Verifique a chave do Google Gemini no código." }]);
+        setAiMessages(msgs => [...msgs, { role: "assistant", text: "⚙️ Erro: " + (data.error.message || "Tente novamente.") }]);
       } else {
-        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Desculpe, não consegui responder.";
+        const reply = data.choices?.[0]?.message?.content || "Desculpe, não consegui responder.";
         setAiMessages(msgs => [...msgs, { role: "assistant", text: reply }]);
       }
     } catch {
