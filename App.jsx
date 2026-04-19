@@ -1195,7 +1195,7 @@ export default function App() {
               <button onClick={() => { setShowTeacherLogin(false); setTeacherPassword(""); setTeacherError(""); }} style={{ width: "100%", background: "none", border: "none", color: "#7a6545", fontSize: 13, cursor: "pointer", fontFamily: "'Georgia', serif" }}>
                 Cancelar
               </button>
-              <div style={{ fontSize: 11, color: "#c9a96e", textAlign: "center", marginTop: 10 }}>Senha padrão: <strong>giovana123</strong></div>
+
             </div>
           </div>
         )}
