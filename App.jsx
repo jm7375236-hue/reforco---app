@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const SUBJECTS = ["Inglês", "Espanhol", "Matemática", "Português", "Gramática", "Redação", "Ciências", "História", "Geografia", "Arte"];
+const SUBJECTS = ["Inglês", "Espanhol", "Matemática", "Português", "Gramática", "Redação", "Ciências", "História", "Geografia", "Arte", "Química", "Física", "Biologia", "Ed. Física"];
 const SUBJECT_COLORS = {
   "Inglês": "#0ea5e9",
   "Espanhol": "#f97316",
@@ -12,6 +12,10 @@ const SUBJECT_COLORS = {
   "História": "#ec4899",
   "Geografia": "#06b6d4",
   "Arte": "#e11d48",
+  "Química": "#0891b2",
+  "Física": "#7c3aed",
+  "Biologia": "#16a34a",
+  "Ed. Física": "#ea580c",
 };
 const SUBJECT_ICONS = {
   "Inglês": "🇬🇧",
@@ -24,6 +28,10 @@ const SUBJECT_ICONS = {
   "História": "🏛️",
   "Geografia": "🌍",
   "Arte": "🎨",
+  "Química": "⚗️",
+  "Física": "⚡",
+  "Biologia": "🧬",
+  "Ed. Física": "⚽",
 };
 
 const initialQuizzes = [
@@ -97,6 +105,30 @@ const MATERIALS_DATA = [
     { title: "História da Arte", summary: "Do Renascimento ao Modernismo: Impressionismo, Cubismo, Arte Abstrata e os grandes artistas da história.", video: "https://youtube.com" },
     { title: "Arte Brasileira", summary: "Tarsila do Amaral, Cândido Portinari, Di Cavalcanti e outros artistas que marcaram a cultura brasileira.", video: "https://youtube.com" },
     { title: "Música e Teatro", summary: "Elementos da música (ritmo, melodia, harmonia) e do teatro (personagem, cenário, texto e representação).", video: "https://youtube.com" },
+  ]},
+  { subject: "Química", topics: [
+    { title: "Tabela Periódica", summary: "A tabela periódica organiza os elementos químicos por número atômico. Grupos e períodos definem as propriedades dos elementos.", video: "https://youtube.com" },
+    { title: "Ligações Químicas", summary: "Iônica (transferência de elétrons), covalente (compartilhamento) e metálica. Cada tipo determina as propriedades da substância.", video: "https://youtube.com" },
+    { title: "Reações Químicas", summary: "Transformações que alteram a composição das substâncias. Tipos: síntese, decomposição, deslocamento e dupla troca.", video: "https://youtube.com" },
+    { title: "Soluções", summary: "Mistura homogênea de soluto e solvente. Concentração, diluição e solubilidade são conceitos fundamentais.", video: "https://youtube.com" },
+  ]},
+  { subject: "Física", topics: [
+    { title: "Cinemática", summary: "Estudo do movimento: posição, velocidade, aceleração. MRU (velocidade constante) e MRUV (aceleração constante).", video: "https://youtube.com" },
+    { title: "Dinâmica", summary: "Leis de Newton: inércia, F=ma e ação e reação. Força, massa e aceleração estão sempre relacionadas.", video: "https://youtube.com" },
+    { title: "Energia", summary: "Energia cinética (movimento), potencial (posição) e conservação de energia. Trabalho e potência.", video: "https://youtube.com" },
+    { title: "Ondas e Som", summary: "Ondas mecânicas e eletromagnéticas. Frequência, comprimento de onda, amplitude e velocidade de propagação.", video: "https://youtube.com" },
+  ]},
+  { subject: "Biologia", topics: [
+    { title: "Célula", summary: "Unidade básica da vida. Célula procarionte (sem núcleo) e eucarionte (com núcleo). Organelas e suas funções.", video: "https://youtube.com" },
+    { title: "Genética", summary: "Hereditariedade, DNA, genes, cromossomos. Leis de Mendel: dominância e segregação dos caracteres.", video: "https://youtube.com" },
+    { title: "Ecossistemas", summary: "Relações entre seres vivos e ambiente. Cadeias alimentares, pirâmides ecológicas e ciclos biogeoquímicos.", video: "https://youtube.com" },
+    { title: "Corpo Humano", summary: "Sistemas do corpo: digestório, respiratório, circulatório, nervoso, endócrino e reprodutor.", video: "https://youtube.com" },
+  ]},
+  { subject: "Ed. Física", topics: [
+    { title: "Saúde e Qualidade de Vida", summary: "Atividade física regular melhora saúde física e mental. Benefícios do exercício: fortalecimento, flexibilidade e bem-estar.", video: "https://youtube.com" },
+    { title: "Esportes Coletivos", summary: "Futebol, basquete, vôlei, handebol: regras básicas, posições e fundamentos de cada modalidade.", video: "https://youtube.com" },
+    { title: "Atletismo", summary: "Corridas, saltos e lançamentos. Técnicas básicas e importância do atletismo para o desenvolvimento motor.", video: "https://youtube.com" },
+    { title: "Corpo e Movimento", summary: "Coordenação motora, lateralidade, equilíbrio e ritmo. Desenvolvimento das habilidades motoras fundamentais.", video: "https://youtube.com" },
   ]},
 ];
 
