@@ -1,4 +1,46 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+// Firebase
+import { initializeApp } from "firebase/app";
+import { getDatabase, ref, set, onValue, remove } from "firebase/database";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDdoLBFnxxHlTyzXCJ9lSBvCkKhUQcuxy4",
+  authDomain: "territorio-do-aprender.firebaseapp.com",
+  databaseURL: "https://territorio-do-aprender-default-rtdb.firebaseio.com",
+  projectId: "territorio-do-aprender",
+  storageBucket: "territorio-do-// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyDdoLBFnxxHlTyzXCJ9lSBvCkKhUQcuxy4",
+  authDomain: "territorio-do-aprender.firebaseapp.com",
+  databaseURL: "https://territorio-do-aprender-default-rtdb.firebaseio.com",
+  projectId: "territorio-do-aprender",
+  storageBucket: "territorio-do-aprender.firebasestorage.app",
+  messagingSenderId: "213868291",
+  appId: "1:213868291:web:3ad7c97d25e21515615336",
+  measurementId: "G-BLNF3W82BT"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);.firebasestorage.app",
+  messagingSenderId: "213868291",
+  appId: "1:213868291:web:3ad7c97d25e21515615336"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getDatabase(firebaseApp);
+
+const fbSave = (path, data) => set(ref(db, path), data);
+const fbListen = (path, callback) => onValue(ref(db, path), snap => callback(snap.val()));
+const fbRemove = (path) => remove(ref(db, path));
 
 const SUBJECTS = ["Inglês", "Espanhol", "Matemática", "Português", "Gramática", "Redação", "Ciências", "História", "Geografia", "Arte", "Química", "Física", "Biologia", "Ed. Física"];
 const SUBJECT_COLORS = {
@@ -1041,35 +1083,68 @@ function MuralTab({ murals, setMurals }) {
 }
 
 export default function App() {
-  // localStorage helpers
-  const load = (key, fallback) => { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch { return fallback; } };
-
   const [tab, setTab] = useState("dashboard");
   const [studentMode, setStudentMode] = useState(false);
+  const [dbLoaded, setDbLoaded] = useState(false);
 
-  const [studentsData, setStudentsData] = useState(() => load("ta_students", []));
-  const students = studentsData;
-  const setStudents = (v) => { const val = typeof v === "function" ? v(studentsData) : v; setStudentsData(val); try { localStorage.setItem("ta_students", JSON.stringify(val)); } catch {} };
+  const [students, setStudentsState] = useState([]);
+  const [studentNotes, setStudentNotesState] = useState({});
+  const [grades, setGradesState] = useState({});
+  const [devIndex, setDevIndexState] = useState({});
+  const [quizzes, setQuizzesState] = useState(initialQuizzes);
+  const [murals, setMuralsState] = useState([]);
 
-  const [notesData, setNotesData] = useState(() => load("ta_notes", {}));
-  const studentNotes = notesData;
-  const setStudentNotes = (v) => { const val = typeof v === "function" ? v(notesData) : v; setNotesData(val); try { localStorage.setItem("ta_notes", JSON.stringify(val)); } catch {} };
+  // Load all data from Firebase on start
+  useEffect(() => {
+    fbListen("students", val => setStudentsState(val ? Object.values(val) : []));
+    fbListen("studentNotes", val => setStudentNotesState(val || {}));
+    fbListen("grades", val => setGradesState(val || {}));
+    fbListen("devIndex", val => setDevIndexState(val || {}));
+    fbListen("quizzes", val => setQuizzesState(val ? Object.values(val) : initialQuizzes));
+    fbListen("murals", val => { setMuralsState(val ? Object.values(val) : []); setDbLoaded(true); });
+  }, []);
 
-  const [gradesData, setGradesData] = useState(() => load("ta_grades", {}));
-  const grades = gradesData;
-  const setGrades = (v) => { const val = typeof v === "function" ? v(gradesData) : v; setGradesData(val); try { localStorage.setItem("ta_grades", JSON.stringify(val)); } catch {} };
+  const setStudents = (v) => {
+    const val = typeof v === "function" ? v(students) : v;
+    setStudentsState(val);
+    const obj = {};
+    val.forEach(s => { obj[s.id] = s; });
+    fbSave("students", obj);
+  };
 
-  const [devIndexData, setDevIndexData] = useState(() => load("ta_devindex", {}));
-  const devIndex = devIndexData;
-  const setDevIndex = (v) => { const val = typeof v === "function" ? v(devIndexData) : v; setDevIndexData(val); try { localStorage.setItem("ta_devindex", JSON.stringify(val)); } catch {} };
+  const setStudentNotes = (v) => {
+    const val = typeof v === "function" ? v(studentNotes) : v;
+    setStudentNotesState(val);
+    fbSave("studentNotes", val);
+  };
 
-  const [quizzesData, setQuizzesData] = useState(() => load("ta_quizzes", initialQuizzes));
-  const quizzes = quizzesData;
-  const setQuizzes = (v) => { const val = typeof v === "function" ? v(quizzesData) : v; setQuizzesData(val); try { localStorage.setItem("ta_quizzes", JSON.stringify(val)); } catch {} };
+  const setGrades = (v) => {
+    const val = typeof v === "function" ? v(grades) : v;
+    setGradesState(val);
+    fbSave("grades", val);
+  };
 
-  const [muralsData, setMuralsData] = useState(() => load("ta_murals", []));
-  const murals = muralsData;
-  const setMurals = (v) => { const val = typeof v === "function" ? v(muralsData) : v; setMuralsData(val); try { localStorage.setItem("ta_murals", JSON.stringify(val)); } catch {} };
+  const setDevIndex = (v) => {
+    const val = typeof v === "function" ? v(devIndex) : v;
+    setDevIndexState(val);
+    fbSave("devIndex", val);
+  };
+
+  const setQuizzes = (v) => {
+    const val = typeof v === "function" ? v(quizzes) : v;
+    setQuizzesState(val);
+    const obj = {};
+    val.forEach((q, i) => { obj[q.id || i] = q; });
+    fbSave("quizzes", obj);
+  };
+
+  const setMurals = (v) => {
+    const val = typeof v === "function" ? v(murals) : v;
+    setMuralsState(val);
+    const obj = {};
+    val.forEach(m => { obj[m.id] = m; });
+    fbSave("murals", obj);
+  };
 
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [showAddStudent, setShowAddStudent] = useState(false);
