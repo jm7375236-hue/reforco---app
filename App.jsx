@@ -9,28 +9,7 @@ const firebaseConfig = {
   authDomain: "territorio-do-aprender.firebaseapp.com",
   databaseURL: "https://territorio-do-aprender-default-rtdb.firebaseio.com",
   projectId: "territorio-do-aprender",
-  storageBucket: "territorio-do-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyDdoLBFnxxHlTyzXCJ9lSBvCkKhUQcuxy4",
-  authDomain: "territorio-do-aprender.firebaseapp.com",
-  databaseURL: "https://territorio-do-aprender-default-rtdb.firebaseio.com",
-  projectId: "territorio-do-aprender",
   storageBucket: "territorio-do-aprender.firebasestorage.app",
-  messagingSenderId: "213868291",
-  appId: "1:213868291:web:3ad7c97d25e21515615336",
-  measurementId: "G-BLNF3W82BT"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);.firebasestorage.app",
   messagingSenderId: "213868291",
   appId: "1:213868291:web:3ad7c97d25e21515615336"
 };
