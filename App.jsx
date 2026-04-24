@@ -1140,7 +1140,7 @@ export default function App() {
   const [teacherPassword, setTeacherPassword] = useState("");
   const [teacherError, setTeacherError] = useState("");
 
-  const TEACHER_PASSWORDS = ["giovana123", "suellenjg"];
+  const TEACHER_PASSWORDS = ["giovana123", "suellen10"];
   const handleTeacherLogin = () => {
     if (TEACHER_PASSWORDS.includes(teacherPassword.toLowerCase())) {
       setTeacherMode(true);
