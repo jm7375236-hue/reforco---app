@@ -21,7 +21,7 @@ const fbSave = (path, data) => set(ref(db, path), data);
 const fbListen = (path, callback) => onValue(ref(db, path), snap => callback(snap.val()));
 const fbRemove = (path) => remove(ref(db, path));
 
-const SUBJECTS = ["Inglês", "Espanhol", "Matemática", "Português", "Gramática", "Redação", "Ciências", "História", "Geografia", "Arte", "Química", "Física", "Biologia", "Ed. Física"];
+const SUBJECTS = ["Inglês", "Espanhol", "Matemática", "Português", "Gramática", "Redação", "Ciências", "História", "Geografia", "Arte", "Química", "Física", "Biologia", "Ed. Física", "Filosofia", "Religião"];
 const SUBJECT_COLORS = {
   "Inglês": "#0ea5e9",
   "Espanhol": "#f97316",
@@ -37,6 +37,8 @@ const SUBJECT_COLORS = {
   "Física": "#7c3aed",
   "Biologia": "#16a34a",
   "Ed. Física": "#ea580c",
+  "Filosofia": "#7c3aed",
+  "Religião": "#b45309",
 };
 const SUBJECT_ICONS = {
   "Inglês": "🇬🇧",
@@ -53,6 +55,8 @@ const SUBJECT_ICONS = {
   "Física": "⚡",
   "Biologia": "🧬",
   "Ed. Física": "⚽",
+  "Filosofia": "🏛️",
+  "Religião": "🙏",
 };
 
 const initialQuizzes = [
