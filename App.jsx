@@ -1197,7 +1197,7 @@ export default function App() {
 
   const quizScore = () => quizAnswers.filter((a, i) => a === activeQuiz.questions[i].answer).length;
 
-  const GROQ_API_KEY = "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";
+  const GROQ_API_KEY = "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";
   
   const sendAI = async () => {
     if (!aiInput.trim()) return;
