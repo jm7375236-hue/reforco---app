@@ -928,11 +928,6 @@ function StudentArea({ students, grades, quizzes, murals, onBack }) {
           </div>
         )}
 
-        {/* MURAL */}
-        {tab === "mural" && (
-          <MuralTab murals={murals} setMurals={setMurals} />
-        )}
-
         {/* NOTAS */}
         {tab === "grades" && (
           <div>
