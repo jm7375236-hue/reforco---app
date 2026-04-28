@@ -1,0 +1,21 @@
+{
+  "name": "Território do Aprender",
+  "short_name": "Reforço",
+  "description": "App de reforço escolar - Território do Aprender",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#2d2416",
+  "theme_color": "#2d2416",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
