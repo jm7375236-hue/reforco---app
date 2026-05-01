@@ -1192,7 +1192,7 @@ export default function App() {
 
   const quizScore = () => quizAnswers.filter((a, i) => a === activeQuiz.questions[i].answer).length;
 
-  const GROQ_API_KEY = "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";
+  const OPENROUTER_API_KEY = "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";
   
   const sendAI = async () => {
     if (!aiInput.trim()) return;
@@ -1201,14 +1201,16 @@ export default function App() {
     setAiMessages(msgs => [...msgs, { role: "user", text: userMsg }]);
     setAiLoading(true);
     try {
-      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${GROQ_API_KEY}`
+          "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+          "HTTP-Referer": "https://reforco-app-brown.vercel.app",
+          "X-Title": "Território do Aprender"
         },
         body: JSON.stringify({
-          model: "llama-3.1-8b-instant",
+          model: "meta-llama/llama-3.1-8b-instruct:free",
           messages: [
             { role: "system", content: "Você é uma assistente pedagógica especializada em reforço escolar para alunos do ensino fundamental. Responda sempre em português, de forma clara, didática e encorajadora. Ajude com dúvidas de Matemática, Português, Ciências, História, Geografia, Inglês, Espanhol e Arte. Seja animada e use emojis ocasionalmente." },
             { role: "user", content: userMsg }
