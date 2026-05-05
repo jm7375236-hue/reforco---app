@@ -1192,7 +1192,7 @@ export default function App() {
 
   const quizScore = () => quizAnswers.filter((a, i) => a === activeQuiz.questions[i].answer).length;
 
-  const OPENROUTER_API_KEY = "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";
+  const COHERE_API_KEY = "hkAwOfFWLgbIREApaojzpx3zGQeK8vDClJGlBhmL";
   
   const sendAI = async () => {
     if (!aiInput.trim()) return;
@@ -1201,29 +1201,24 @@ export default function App() {
     setAiMessages(msgs => [...msgs, { role: "user", text: userMsg }]);
     setAiLoading(true);
     try {
-      const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      const res = await fetch("https://api.cohere.com/v1/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
-          "HTTP-Referer": "https://reforco-app-brown.vercel.app",
-          "X-Title": "Território do Aprender"
+          "Authorization": `Bearer ${COHERE_API_KEY}`
         },
         body: JSON.stringify({
-          model: "meta-llama/llama-3.1-8b-instruct:free",
-          messages: [
-            { role: "system", content: "Você é uma assistente pedagógica especializada em reforço escolar para alunos do ensino fundamental. Responda sempre em português, de forma clara, didática e encorajadora. Ajude com dúvidas de Matemática, Português, Ciências, História, Geografia, Inglês, Espanhol e Arte. Seja animada e use emojis ocasionalmente." },
-            { role: "user", content: userMsg }
-          ],
-          max_tokens: 1000,
+          model: "command-r",
+          message: userMsg,
+          preamble: "Você é uma assistente pedagógica especializada em reforço escolar para alunos do ensino fundamental. Responda sempre em português, de forma clara, didática e encorajadora. Ajude com dúvidas de Matemática, Português, Ciências, História, Geografia, Inglês, Espanhol e Arte. Seja animada e use emojis ocasionalmente.",
           temperature: 0.7
         }),
       });
       const data = await res.json();
-      if (data.error) {
-        setAiMessages(msgs => [...msgs, { role: "assistant", text: "⚙️ Erro: " + (data.error.message || "Tente novamente.") }]);
+      if (data.message) {
+        setAiMessages(msgs => [...msgs, { role: "assistant", text: "⚙️ Erro: " + data.message }]);
       } else {
-        const reply = data.choices?.[0]?.message?.content || "Desculpe, não consegui responder.";
+        const reply = data.text || "Desculpe, não consegui responder.";
         setAiMessages(msgs => [...msgs, { role: "assistant", text: reply }]);
       }
     } catch {
