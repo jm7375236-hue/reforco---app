@@ -1208,7 +1208,7 @@ export default function App() {
           "Authorization": `Bearer ${COHERE_API_KEY}`
         },
         body: JSON.stringify({
-          model: "command-r",
+          model: "command-r-plus-08-2024",
           message: userMsg,
           preamble: "Você é uma assistente pedagógica especializada em reforço escolar para alunos do ensino fundamental. Responda sempre em português, de forma clara, didática e encorajadora. Ajude com dúvidas de Matemática, Português, Ciências, História, Geografia, Inglês, Espanhol e Arte. Seja animada e use emojis ocasionalmente.",
           temperature: 0.7
