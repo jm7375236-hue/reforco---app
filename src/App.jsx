@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 // Firebase
 import { initializeApp } from "firebase/app";
-import { getDatabase, ref, set, onValue, remove } from "firebase/database";
+import { getDatabase, ref, set, update, onValue, remove } from "firebase/database";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDdoLBFnxxHlTyzXCJ9lSBvCkKhUQcuxy4",
@@ -1086,9 +1086,10 @@ export default function App() {
     const val = typeof v === "function" ? v(students) : v;
     setStudentsState(val);
     if (!dbLoaded) return;
-    const obj = {};
-    val.forEach(s => { obj[s.id] = s; });
-    fbSave("students", obj);
+    // Usar update para não sobrescrever alunos de outros dispositivos
+    const updates = {};
+    val.forEach(s => { updates["students/" + s.id] = s; });
+    update(ref(db), updates);
   };
 
   const setStudentNotes = (v) => {
@@ -1159,7 +1160,8 @@ export default function App() {
   };
 
   const handleDeleteStudent = (id) => {
-    setStudents(students.filter(s => s.id !== id));
+    fbRemove("students/" + id);
+    setStudentsState(prev => prev.filter(s => s.id !== id));
     setSelectedStudent(null);
   };
 
