@@ -1074,12 +1074,12 @@ export default function App() {
 
   // Load all data from Firebase on start
   useEffect(() => {
-    fbListen("students", val => { setStudentsState(val ? Object.values(val) : []); });
+    fbListen("students", val => { setStudentsState(val ? Object.values(val) : []); setTimeout(() => setDbLoaded(true), 500); });
     fbListen("studentNotes", val => setStudentNotesState(val || {}));
     fbListen("grades", val => setGradesState(val || {}));
     fbListen("devIndex", val => setDevIndexState(val || {}));
     fbListen("quizzes", val => setQuizzesState(val ? Object.values(val) : initialQuizzes));
-    fbListen("murals", val => { setMuralsState(val ? Object.values(val) : []); setTimeout(() => setDbLoaded(true), 1000); });
+    fbListen("murals", val => { setMuralsState(val ? Object.values(val) : []); });
   }, []);
 
   const setStudents = (v) => {
