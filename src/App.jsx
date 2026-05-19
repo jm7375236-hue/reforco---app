@@ -1150,14 +1150,16 @@ export default function App() {
   };
 
   const avgProgress = (student) => {
-    if (!student || !student.subjects || student.subjects.length === 0) return 0;
-    const medias = student.subjects.map(s => {
-      const g = grades[student.id]?.[s];
-      if (!g) return null;
-      const vals = Object.values(g).filter(v => v !== "" && v !== null && v !== undefined);
-      return vals.length ? vals.reduce((a, b) => a + Number(b), 0) / vals.length : null;
-    }).filter(v => v !== null);
-    return medias.length ? Math.round(medias.reduce((a, b) => a + b, 0) / medias.length) : 0;
+    try {
+      if (!student || !student.subjects || !Array.isArray(student.subjects) || student.subjects.length === 0) return 0;
+      const medias = student.subjects.map(s => {
+        const g = (grades || {})[student.id]?.[s];
+        if (!g) return null;
+        const vals = Object.values(g).filter(v => v !== "" && v !== null && v !== undefined);
+        return vals.length ? vals.reduce((a, b) => a + Number(b), 0) / vals.length : null;
+      }).filter(v => v !== null);
+      return medias.length ? Math.round(medias.reduce((a, b) => a + b, 0) / medias.length) : 0;
+    } catch(e) { return 0; }
   };
 
   const handleDeleteStudent = (id) => {
