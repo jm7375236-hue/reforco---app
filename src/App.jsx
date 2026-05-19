@@ -1180,8 +1180,13 @@ export default function App() {
       notes: newStudent.notes || "",
       code: code
     };
-    // Salvar diretamente no Firebase - o listener vai atualizar o estado
+    // Salvar no Firebase e atualizar estado local
     update(ref(db), { ["students/" + newId]: student });
+    setStudentsState(prev => {
+      // Evitar duplicata
+      if (prev.find(s => s.id === newId)) return prev;
+      return [...prev, student];
+    });
     setNewStudent({ name: "", age: "", grade: "", subjects: [], notes: "" });
     setShowAddStudent(false);
   };
