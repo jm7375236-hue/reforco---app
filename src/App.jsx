@@ -1180,9 +1180,8 @@ export default function App() {
       notes: newStudent.notes || "",
       code: code
     };
-    // Salvar diretamente no Firebase sem passar pelo setStudents
+    // Salvar diretamente no Firebase - o listener vai atualizar o estado
     update(ref(db), { ["students/" + newId]: student });
-    setStudentsState(prev => [...prev, student]);
     setNewStudent({ name: "", age: "", grade: "", subjects: [], notes: "" });
     setShowAddStudent(false);
   };
