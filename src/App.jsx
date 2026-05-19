@@ -341,7 +341,7 @@ function GradesTab({ students, grades, setGrades }) {
 
   const calcMediaGeral = (studentId) => {
     if (!selected) return null;
-    const medias = selected.subjects.map(s => calcMedia(studentId, s)).filter(v => v !== null);
+    const medias = (selected.subjects || []).map(s => calcMedia(studentId, s)).filter(v => v !== null);
     if (!medias.length) return null;
     return (medias.reduce((a, b) => a + Number(b), 0) / medias.length).toFixed(1);
   };
@@ -378,7 +378,7 @@ function GradesTab({ students, grades, setGrades }) {
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: 600, color: "#2d2416" }}>{st.name}</div>
-                  <div style={{ fontSize: 12, color: "#7a6545", marginTop: 2 }}>{st.grade} · {st.subjects.length} matérias</div>
+                  <div style={{ fontSize: 12, color: "#7a6545", marginTop: 2 }}>{st.grade} · {(st.subjects || []).length} matérias</div>
                 </div>
                 <div style={{ textAlign: "center" }}>
                   <div style={{ fontWeight: 700, fontSize: 18, color: gradeColor(mg) }}>{mg ?? "—"}</div>
@@ -411,11 +411,11 @@ function GradesTab({ students, grades, setGrades }) {
         </div>
       </div>
 
-      {selected.subjects.length === 0 && (
+      {(selected.subjects || []).length === 0 && (
         <div style={{ ...card, textAlign: "center", color: "#7a6545" }}>Aluno sem matérias cadastradas.</div>
       )}
 
-      {selected.subjects.map(subject => {
+      {(selected.subjects || []).map(subject => {
         const media = calcMedia(selectedId, subject);
         return (
           <div key={subject} style={card}>
@@ -504,8 +504,8 @@ function TrackingTab({ students, studentNotes, setStudentNotes, devIndex, setDev
 
   const overallLevel = (studentId) => {
     const st = students.find(s => s.id === studentId);
-    if (!st || !st.subjects.length) return 2;
-    const vals = st.subjects.map(s => getLevel(studentId, s));
+    if (!st || !(st.subjects || []).length) return 2;
+    const vals = (st.subjects || []).map(s => getLevel(studentId, s));
     return Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
   };
 
@@ -621,7 +621,7 @@ function TrackingTab({ students, studentNotes, setStudentNotes, devIndex, setDev
         <div>
           <div style={{ ...card, marginBottom: 12 }}>
             <div style={{ fontSize: 13, color: "#7a6545", marginBottom: 12 }}>Ajuste o nível de desenvolvimento por matéria:</div>
-            {selected.subjects.map(s => {
+            {(selected.subjects || []).map(s => {
               const lvl = getLevel(selectedId, s);
               return (
                 <div key={s} style={{ marginBottom: 18 }}>
@@ -641,7 +641,7 @@ function TrackingTab({ students, studentNotes, setStudentNotes, devIndex, setDev
                 </div>
               );
             })}
-            {selected.subjects.length === 0 && <div style={{ color: "#7a6545", fontSize: 13, textAlign: "center", padding: "16px 0" }}>Aluno sem matérias cadastradas.</div>}
+            {(selected.subjects || []).length === 0 && <div style={{ color: "#7a6545", fontSize: 13, textAlign: "center", padding: "16px 0" }}>Aluno sem matérias cadastradas.</div>}
           </div>
         </div>
       )}
@@ -656,7 +656,7 @@ function TrackingTab({ students, studentNotes, setStudentNotes, devIndex, setDev
                 { label: "Nível Geral", value: LEVEL_LABELS[overallLevel(selectedId)], color: LEVEL_COLORS[overallLevel(selectedId)] },
                 { label: "Anotações", value: (studentNotes[selectedId] || []).length, color: "#6366f1" },
                 { label: "Progresso Médio", value: avgProgress(selected) + "%", color: "#c9701a" },
-                { label: "Matérias", value: selected.subjects.length, color: "#10b981" },
+                { label: "Matérias", value: (selected.subjects || []).length, color: "#10b981" },
               ].map(item => (
                 <div key={item.label} style={{ background: "#faf7f2", borderRadius: 12, padding: "14px 12px", textAlign: "center" }}>
                   <div style={{ fontSize: 20, fontWeight: 700, color: item.color }}>{item.value}</div>
@@ -665,7 +665,7 @@ function TrackingTab({ students, studentNotes, setStudentNotes, devIndex, setDev
               ))}
             </div>
             <h5 style={{ color: "#5c3d1e", marginBottom: 10 }}>Desenvolvimento por Matéria</h5>
-            {selected.subjects.map(s => {
+            {(selected.subjects || []).map(s => {
               const lvl = getLevel(selectedId, s);
               return (
                 <div key={s} style={{ marginBottom: 12 }}>
@@ -828,7 +828,7 @@ function StudentArea({ students, grades, quizzes, murals, onBack }) {
     );
   }
 
-  const studentMurals = (murals || []).filter(m => (m.subjects || []).some(s => (student.subjects || []).includes(s)) || (m.subjects || []).length === 0);
+  const studentMurals = (murals || []).filter(m => m.subjects.some(s => student.subjects.includes(s)) || m.subjects.length === 0);
   const studentQuizzes = quizzes.filter(q => (student.subjects || []).includes(q.subject));
   const studentMaterials = MATERIALS_DATA.filter(m => (student.subjects || []).includes(m.subject));
 
@@ -894,9 +894,9 @@ function StudentArea({ students, grades, quizzes, murals, onBack }) {
               </div>
             )}
             {studentMurals.map(m => (
-              <div key={m.id} style={{ ...card, borderLeft: `4px solid ${SUBJECT_COLORS[m.subjects[0]] || "#6366f1"}` }}>
+              <div key={m.id} style={{ ...card, borderLeft: `4px solid ${SUBJECT_COLORS[(m.subjects || [])[0]] || "#6366f1"}` }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: SUBJECT_COLORS[m.subjects[0]] || "#6366f1" }}>{m.subjects.join(", ") || "Geral"}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: SUBJECT_COLORS[(m.subjects || [])[0]] || "#6366f1" }}>{m.subjects.join(", ") || "Geral"}</span>
                   <span style={{ fontSize: 11, color: "#c9a96e" }}>{m.date}</span>
                 </div>
                 <div style={{ fontWeight: 700, fontSize: 15, color: "#1e1b4b", marginBottom: 6 }}>{m.title}</div>
@@ -1371,12 +1371,12 @@ export default function App() {
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {students.slice(0, 3).map(st => (
                 <div key={st.id} onClick={() => { setSelectedStudent(st); setTab("students"); }} style={{ ...styles.card, display: "flex", alignItems: "center", gap: 12, cursor: "pointer", marginBottom: 0 }}>
-                  <div style={{ width: 44, height: 44, borderRadius: "50%", background: `linear-gradient(135deg, ${SUBJECT_COLORS[st.subjects[0]] || "#c9701a"}, #c9701a)`, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: 18, flexShrink: 0 }}>
+                  <div style={{ width: 44, height: 44, borderRadius: "50%", background: `linear-gradient(135deg, ${SUBJECT_COLORS[(st.subjects || [])[0]] || "#c9701a"}, #c9701a)`, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: 18, flexShrink: 0 }}>
                     {st.name[0]}
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 600, color: "#2d2416", fontSize: 15 }}>{st.name}</div>
-                    <div style={{ fontSize: 12, color: "#7a6545" }}>{st.grade} · {st.subjects.join(", ")}</div>
+                    <div style={{ fontSize: 12, color: "#7a6545" }}>{st.grade} · {(st.subjects || []).join(", ")}</div>
                   </div>
                   <div style={{ textAlign: "center" }}>
                     <div style={{ fontWeight: 700, color: avgProgress(st) >= 75 ? "#10b981" : avgProgress(st) >= 50 ? "#f59e0b" : "#ef4444", fontSize: 16 }}>{avgProgress(st)}%</div>
@@ -1391,7 +1391,7 @@ export default function App() {
                 <div key={s} style={{ ...styles.card, textAlign: "center", marginBottom: 0 }}>
                   <div style={{ fontSize: 20, marginBottom: 4 }}>{SUBJECT_ICONS[s]}</div>
                   <div style={{ fontWeight: 600, color: "#2d2416", fontSize: 13 }}>{s}</div>
-                  <div style={{ color: SUBJECT_COLORS[s], fontWeight: 700, fontSize: 20 }}>{students.filter(st => st.subjects.includes(s)).length}</div>
+                  <div style={{ color: SUBJECT_COLORS[s], fontWeight: 700, fontSize: 20 }}>{students.filter(st => (st.subjects || []).includes(s)).length}</div>
                   <div style={{ fontSize: 11, color: "#7a6545" }}>alunos</div>
                 </div>
               ))}
@@ -1457,7 +1457,7 @@ export default function App() {
                   </div>
                   {selectedStudent.notes && <p style={{ fontSize: 13, color: "#7a6545", background: "#faf7f2", borderRadius: 10, padding: "10px 14px", marginBottom: 16 }}>{selectedStudent.notes}</p>}
                   <h4 style={{ color: "#5c3d1e", marginBottom: 12 }}>Desempenho por Matéria</h4>
-                  {selectedStudent.subjects.map(s => (
+                  {(selectedStudent.subjects || []).map(s => (
                     <div key={s} style={{ marginBottom: 14 }}>
                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
                         <span style={{ fontSize: 14, fontWeight: 600, color: "#2d2416" }}>{SUBJECT_ICONS[s]} {s}</span>
@@ -1489,7 +1489,7 @@ export default function App() {
                     </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontWeight: 600, color: "#2d2416" }}>{st.name}</div>
-                      <div style={{ fontSize: 12, color: "#7a6545", marginTop: 2 }}>{st.grade} · {st.subjects.length} matérias</div>
+                      <div style={{ fontSize: 12, color: "#7a6545", marginTop: 2 }}>{st.grade} · {(st.subjects || []).length} matérias</div>
                     </div>
                     <div style={{ background: avgProgress(st) >= 75 ? "#d1fae5" : avgProgress(st) >= 50 ? "#fef3c7" : "#fee2e2", borderRadius: 20, padding: "4px 10px", fontSize: 13, fontWeight: 700, color: avgProgress(st) >= 75 ? "#10b981" : avgProgress(st) >= 50 ? "#f59e0b" : "#ef4444" }}>
                       {avgProgress(st)}%
