@@ -1168,8 +1168,23 @@ export default function App() {
   const handleAddStudent = () => {
     if (!newStudent.name || !newStudent.grade) return;
     const prog = {};
-    newStudent.subjects.forEach(s => prog[s] = 50);
-    setStudents([...students, { ...newStudent, id: Date.now(), age: Number(newStudent.age), progress: prog, code: newStudent.code.trim().toLowerCase() || newStudent.name.split(" ")[0].toLowerCase() + Math.floor(Math.random()*900+100) }]);
+    newStudent.subjects.forEach(s => { prog[s] = 50; });
+    const code = newStudent.code.trim().toLowerCase() || 
+      newStudent.name.split(" ")[0].toLowerCase() + Math.floor(Math.random()*900+100);
+    const newId = Date.now();
+    const student = {
+      id: newId,
+      name: newStudent.name,
+      age: Number(newStudent.age),
+      grade: newStudent.grade,
+      subjects: newStudent.subjects,
+      notes: newStudent.notes || "",
+      code: code,
+      progress: prog
+    };
+    // Salvar diretamente no Firebase sem passar pelo setStudents
+    update(ref(db), { ["students/" + newId]: student });
+    setStudentsState(prev => [...prev, student]);
     setNewStudent({ name: "", age: "", grade: "", subjects: [], notes: "" });
     setShowAddStudent(false);
   };
