@@ -18,6 +18,7 @@ const firebaseApp = initializeApp(firebaseConfig);
 const db = getDatabase(firebaseApp);
 
 const fbSave = (path, data) => set(ref(db, path), data);
+const fbUpdate = (updates) => update(ref(db), updates);
 const fbListen = (path, callback) => onValue(ref(db, path), snap => callback(snap.val()));
 const fbRemove = (path) => remove(ref(db, path));
 
@@ -1151,11 +1152,15 @@ export default function App() {
 
   const avgProgress = (student) => {
     try {
-      if (!student || !student.subjects || !Array.isArray(student.subjects) || student.subjects.length === 0) return 0;
-      const medias = student.subjects.map(s => {
-        const g = (grades || {})[student.id]?.[s];
-        if (!g) return null;
-        const vals = Object.values(g).filter(v => v !== "" && v !== null && v !== undefined);
+      if (!student || !student.id) return 0;
+      const subs = Array.isArray(student.subjects) ? student.subjects : [];
+      if (subs.length === 0) return 0;
+      const safeGrades = grades || {};
+      const studentGrades = safeGrades[student.id] || {};
+      const medias = subs.map(s => {
+        const g = studentGrades[s];
+        if (!g || typeof g !== 'object') return null;
+        const vals = Object.values(g).filter(v => v !== "" && v !== null && v !== undefined && !isNaN(Number(v)));
         return vals.length ? vals.reduce((a, b) => a + Number(b), 0) / vals.length : null;
       }).filter(v => v !== null);
       return medias.length ? Math.round(medias.reduce((a, b) => a + b, 0) / medias.length) : 0;
@@ -1183,7 +1188,7 @@ export default function App() {
       code: code
     };
     // Salvar no Firebase e atualizar estado local
-    update(ref(db), { ["students/" + newId]: student });
+    fbUpdate({ ["students/" + newId]: student });
     setStudentsState(prev => {
       // Evitar duplicata
       if (prev.find(s => s.id === newId)) return prev;
@@ -1243,7 +1248,7 @@ export default function App() {
         const reply = data.text || "Desculpe, não consegui responder.";
         setAiMessages(msgs => [...msgs, { role: "assistant", text: reply }]);
       }
-    } catch {
+    } catch(e) {
       setAiMessages(msgs => [...msgs, { role: "assistant", text: "Erro ao conectar. Verifique sua internet e tente novamente! 😊" }]);
     }
     setAiLoading(false);
