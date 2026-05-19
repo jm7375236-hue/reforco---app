@@ -1085,11 +1085,6 @@ export default function App() {
   const setStudents = (v) => {
     const val = typeof v === "function" ? v(students) : v;
     setStudentsState(val);
-    if (!dbLoaded) return;
-    // Usar update para não sobrescrever alunos de outros dispositivos
-    const updates = {};
-    val.forEach(s => { updates["students/" + s.id] = s; });
-    update(ref(db), updates);
   };
 
   const setStudentNotes = (v) => {
@@ -1155,8 +1150,14 @@ export default function App() {
   };
 
   const avgProgress = (student) => {
-    const vals = Object.values(student.progress || {});
-    return vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : 50;
+    if (!student || !student.subjects || student.subjects.length === 0) return 0;
+    const medias = student.subjects.map(s => {
+      const g = grades[student.id]?.[s];
+      if (!g) return null;
+      const vals = Object.values(g).filter(v => v !== "" && v !== null && v !== undefined);
+      return vals.length ? vals.reduce((a, b) => a + Number(b), 0) / vals.length : null;
+    }).filter(v => v !== null);
+    return medias.length ? Math.round(medias.reduce((a, b) => a + b, 0) / medias.length) : 0;
   };
 
   const handleDeleteStudent = (id) => {
@@ -1167,8 +1168,6 @@ export default function App() {
 
   const handleAddStudent = () => {
     if (!newStudent.name || !newStudent.grade) return;
-    const prog = {};
-    newStudent.subjects.forEach(s => { prog[s] = 50; });
     const code = newStudent.code.trim().toLowerCase() || 
       newStudent.name.split(" ")[0].toLowerCase() + Math.floor(Math.random()*900+100);
     const newId = Date.now();
@@ -1179,8 +1178,7 @@ export default function App() {
       grade: newStudent.grade,
       subjects: newStudent.subjects,
       notes: newStudent.notes || "",
-      code: code,
-      progress: prog
+      code: code
     };
     // Salvar diretamente no Firebase sem passar pelo setStudents
     update(ref(db), { ["students/" + newId]: student });
@@ -1452,10 +1450,10 @@ export default function App() {
                     <div key={s} style={{ marginBottom: 14 }}>
                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
                         <span style={{ fontSize: 14, fontWeight: 600, color: "#2d2416" }}>{SUBJECT_ICONS[s]} {s}</span>
-                        <span style={{ fontWeight: 700, color: SUBJECT_COLORS[s] }}>{selectedStudent.progress[s]}%</span>
+                        <span style={{ fontWeight: 700, color: SUBJECT_COLORS[s] }}>{avgProgress(selectedStudent)}%</span>
                       </div>
                       <div style={{ background: "#f0e6d2", borderRadius: 8, height: 10 }}>
-                        <div style={{ background: SUBJECT_COLORS[s], height: 10, borderRadius: 8, width: `${selectedStudent.progress[s]}%`, transition: "width 0.5s" }} />
+                        <div style={{ background: SUBJECT_COLORS[s], height: 10, borderRadius: 8, width: `${avgProgress(selectedStudent)}%`, transition: "width 0.5s" }} />
                       </div>
                     </div>
                   ))}
