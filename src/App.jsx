@@ -828,9 +828,9 @@ function StudentArea({ students, grades, quizzes, murals, onBack }) {
     );
   }
 
-  const studentMurals = (murals || []).filter(m => m.subjects.some(s => student.subjects.includes(s)) || m.subjects.length === 0);
-  const studentQuizzes = quizzes.filter(q => student.subjects.includes(q.subject));
-  const studentMaterials = MATERIALS_DATA.filter(m => student.subjects.includes(m.subject));
+  const studentMurals = (murals || []).filter(m => (m.subjects || []).some(s => (student.subjects || []).includes(s)) || (m.subjects || []).length === 0);
+  const studentQuizzes = quizzes.filter(q => (student.subjects || []).includes(q.subject));
+  const studentMaterials = MATERIALS_DATA.filter(m => (student.subjects || []).includes(m.subject));
 
   return (
     <div style={{ fontFamily: "'Georgia', serif", background: "#f5f3ff", minHeight: "100vh", maxWidth: 480, margin: "0 auto" }}>
@@ -859,7 +859,7 @@ function StudentArea({ students, grades, quizzes, murals, onBack }) {
           <div>
             <h3 style={{ color: "#1e1b4b", marginBottom: 16 }}>Suas matérias 📚</h3>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
-              {student.subjects.map(s => (
+              {(student.subjects || []).map(s => (
                 <div key={s} style={{ background: "#fff", borderRadius: 12, padding: "14px 12px", textAlign: "center", boxShadow: "0 2px 8px #0001", borderTop: `3px solid ${SUBJECT_COLORS[s]}` }}>
                   <div style={{ fontSize: 22, marginBottom: 4 }}>{SUBJECT_ICONS[s]}</div>
                   <div style={{ fontSize: 13, fontWeight: 600, color: "#1e1b4b" }}>{s}</div>
@@ -933,7 +933,7 @@ function StudentArea({ students, grades, quizzes, murals, onBack }) {
         {tab === "grades" && (
           <div>
             <h3 style={{ color: "#1e1b4b", marginBottom: 16 }}>📊 Minhas Notas</h3>
-            {student.subjects.map(subject => {
+            {(student.subjects || []).map(subject => {
               const media = calcMedia(subject);
               return (
                 <div key={subject} style={card}>
